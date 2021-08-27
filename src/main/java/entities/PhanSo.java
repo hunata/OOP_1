@@ -1,6 +1,7 @@
 package entities;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class PhanSo {
     private int tuSo;
@@ -12,32 +13,34 @@ public class PhanSo {
         System.out.format("%d/%d\n", tuSo, mauSo);
     }
 
+    public void inputPhanSo() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("TuSo: ");
+        this.tuSo = sc.nextInt();
+        System.out.print("MauSo: ");
+        this.mauSo = sc.nextInt();
+    }
 
     public static PhanSo fromString(String str) {
         String[] parts = str.split("/");
-//        parts = parts.
         PhanSo ps = new PhanSo();
         ps.tuSo = Integer.parseInt(parts[0]);
         ps.mauSo = Integer.parseInt(parts[1]);
         return ps;
     }
 
-//    public static PhanSo RutGonPhanSo(PhanSo ps){
-//        PhanSo ps1 = new PhanSo();
-////        int ucln = ps.UocChungLonNhat(ps.tuSo, ps.mauSo);
-//        ps1.tuSo = ps.tuSo/ps.UocChungLonNhat(ps.tuSo, ps.mauSo);
-//        ps1.mauSo = ps.mauSo/ps.UocChungLonNhat(ps.tuSo, ps.mauSo);
-//        return ps1;
-//    }
-
-    public static PhanSo RutGonPhanSo(PhanSo ps) {
-        int ucln = ps.uocChungLonNhat(ps.tuSo, ps.mauSo);
-        ps.tuSo = ps.tuSo / ucln;
-        ps.mauSo = ps.mauSo / ucln;
-        return ps;
+    @Override
+    public String toString() {
+        return String.format("%d/%d", this.tuSo, this.mauSo);
     }
 
-    public static int uocChungLonNhat(int a, int b) {
+    public void RutGonPhanSo() {
+        int ucln = uocChungLonNhat(Math.abs(this.tuSo), Math.abs(this.mauSo));
+        this.tuSo = this.tuSo / ucln;
+        this.mauSo = this.mauSo / ucln;
+    }
+
+    private static int uocChungLonNhat(int a, int b) {
         int ucln = 0;
         if (a >= b) {
             for (int i = 1; i <= b; i++) {
@@ -62,7 +65,7 @@ public class PhanSo {
 
     public static ArrayList quyDongHaiPhanSo(PhanSo ps1, PhanSo ps2) {
         ArrayList<PhanSo> result = new ArrayList<>();
-        int boiChungNhoNhat = (ps1.mauSo * ps2.mauSo) / uocChungLonNhat(ps1.mauSo, ps2.mauSo);
+        int boiChungNhoNhat = (ps1.mauSo * ps2.mauSo) / uocChungLonNhat(Math.abs(ps1.mauSo), Math.abs(ps2.mauSo));
         ps1.tuSo *= boiChungNhoNhat / ps1.mauSo;
         ps1.mauSo = boiChungNhoNhat;
         ps2.tuSo *= boiChungNhoNhat / ps2.mauSo;
@@ -72,24 +75,28 @@ public class PhanSo {
         return result;
     }
 
-    public static String soSanhPhanSo(PhanSo ps1, PhanSo ps2) {
-        ArrayList<PhanSo> ps = PhanSo.quyDongHaiPhanSo(ps1, ps2);
-        if (ps.get(0).tuSo > ps.get(1).tuSo) {
-            return "Phân số 1 nhỏ hơn phân số 2";
-        } else if (ps.get(0).tuSo < ps.get(1).tuSo) {
-            return "Phân số 1 lớn hơn phân số 2";
-        } else return "Hai phân số bằng nhau";
+    public int compareTo(PhanSo another) {
+        long tmp1 = this.tuSo * another.mauSo;
+        long tmp2 = this.mauSo * another.tuSo;
+
+        if (tmp1 > tmp2)
+            return 1; // this > another
+
+        if (tmp1 < tmp2)
+            return -1; // this < another
+
+        return 0; // this == another
     }
 
-    public static String isAmDUongPhanSo(PhanSo ps) {
-        if (ps.tuSo > 0 && ps.mauSo > 0) {
-            return " Phân số này là phân số dương";
-        } else if (ps.tuSo < 0 && ps.mauSo > 0) {
-            return " Phân số này là phân số âm";
-        } else if (ps.tuSo > 0 && ps.mauSo < 0) {
-            return " Phân số này là phân số âm";
+    public boolean isAmDuong() {
+        if (this.tuSo > 0 && this.mauSo > 0) {
+            return true;
+        } else if (this.tuSo < 0 && this.mauSo > 0) {
+            return false;
+        } else if (this.tuSo > 0 && this.mauSo < 0) {
+            return false;
         } else {
-            return " Phân số này là phân số dương";
+            return true;
         }
     }
 
@@ -97,7 +104,7 @@ public class PhanSo {
         PhanSo ps3 = new PhanSo();
         ps3.tuSo = ps1.tuSo * ps2.mauSo + ps2.tuSo * ps1.mauSo;
         ps3.mauSo = ps1.mauSo * ps2.mauSo;
-        ps3 = RutGonPhanSo(ps3);
+        ps3.RutGonPhanSo();
         return ps3;
     }
 
@@ -105,7 +112,7 @@ public class PhanSo {
         PhanSo ps3 = new PhanSo();
         ps3.tuSo = ps1.tuSo * ps2.mauSo - ps2.tuSo * ps1.mauSo;
         ps3.mauSo = ps1.mauSo * ps2.mauSo;
-        ps3 = RutGonPhanSo(ps3);
+        ps3.RutGonPhanSo();
         return ps3;
     }
 
@@ -113,7 +120,7 @@ public class PhanSo {
         PhanSo ps3 = new PhanSo();
         ps3.tuSo = ps1.tuSo * ps2.tuSo;
         ps3.mauSo = ps1.mauSo * ps2.mauSo;
-        ps3 = RutGonPhanSo(ps3);
+        ps3.RutGonPhanSo();
         return ps3;
     }
 
@@ -121,36 +128,18 @@ public class PhanSo {
         PhanSo ps3 = new PhanSo();
         ps3.tuSo = ps1.tuSo * ps2.mauSo;
         ps3.mauSo = ps1.mauSo * ps2.tuSo;
-        ps3 = RutGonPhanSo(ps3);
+        ps3.RutGonPhanSo();
         return ps3;
     }
 
-    public static boolean isPhanSoToiGian(PhanSo ps) {
-        int kq = ps.uocChungLonNhat(ps.tuSo, ps.mauSo);
+    public boolean isPhanSoToiGian() {
+        int kq = uocChungLonNhat(Math.abs(this.tuSo), Math.abs(this.mauSo));
         if (kq == 1) {
             return true;
         }
         return false;
     }
-
 }
-
-//    public void init(int tuSo, int mauSo) {
-//        this.tuSo = tuSo;
-//        this.mauSo = mauSo;
-//        staticField ++;
-//    }
-//
-//    public static void testStaticField(String str) {
-//        System.out.println("str");
-//        System.out.println(staticField);
-//    }
-
-//    public static void fromString (String str){
-////        staticField =100;
-//        System.out.println(str);
-//        System.out.println(staticField);
-//    }
 
 
 
